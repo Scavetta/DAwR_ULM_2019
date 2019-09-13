@@ -431,5 +431,101 @@ foo_df %>%
 foo_df %>% 
   top_n(2, quantity)
 
+# Element 8: Factor variables with many "levels"
+# aka categorical (discrete, qualitative) variables 
+# with many "groups"
+# i.e. includes nominal, ordinal, binary
+# count data
+
+# e.g.
+PlantGrowth$group
+foo_df$tissue
+
+# what is it:
+typeof(PlantGrowth$group) # integer
+class(PlantGrowth$group) # factor
+# factor is a special class of type integer
+
+# We can see this with str()
+str(PlantGrowth)
+
+# R likes to make factors out of characters
+# e.g.
+foo3 # chr vector
+# also, see read.delim when importing
+
+# Get the levels
+levels(PlantGrowth$group)
+
+# Common problem - numeric factors
+xx <- c(23:27, "bob")
+xx
+
+# in a dataframe, this would be a factor:
+myDF <- data.frame(xx)
+myDF$xx
+mean(myDF$xx) # doesn't work
+# so just coerce, but first make it a character!
+as.numeric(as.character(myDF$xx))
+
+# Element 9: Tidy Data
+# Create a new play dataset to work on:
+PlayData <- data.frame(type = rep(c("A", "B"), each = 2),
+                       time = 1:2,
+                       height = seq(10, 40, 10),
+                       width = seq(50, 80, 10))
+
+# Use the tidyr package to get tidy data:
+# four arguments for gather():
+# 1 - the messy data set
+# 2,3 - key/value pair - Names of the OUTPUT columns
+# 4 - the ID (type time) or the MEASURE (height width) variables
+
+# using ID variables
+gather(PlayData, key, value, -c(type, time))
+
+# using MEASURE variables
+PlayData_t <- gather(PlayData, key, value, c(height, width))
 
 
+# apply transformation functions, i.e. Ratio
+# ratio height/width
+PlayData$height/PlayData$width
+
+# ratio time1/time2
+PlayData_t %>% 
+  spread(time, value) %>% 
+  mutate(timeratio = `1`/`2`)
+
+# ratio typeA/typeB
+PlayData_t %>% 
+  spread(type, value) %>% 
+  mutate(typeratio = A/B)
+
+# Element 10: Split-Apply-Combine with dplyr
+# Grammar of data analysis
+
+# Punctuation:The pipe operator %>%
+# The five verbs of dplyr:
+# filter(),
+# arrange(),
+# select(),
+# mutate(),
+# summarise()
+# The adverb group_by()
+
+# In the context of PlayData
+# mean across height & width, i.e. group by type and time
+PlayData_t %>% 
+  group_by(type, time) %>% 
+  summarise(avg = mean(value))
+
+# mean across time 1 & time 2, i.e. group by type and key
+PlayData_t %>% 
+  group_by(type, key) %>% 
+  summarise(avg = mean(value))
+
+# mean across type A & type B, i.e. group by time and key
+PlayData_t %>% 
+  group_by(time, key) %>% 
+  summarise(avg = mean(value))
