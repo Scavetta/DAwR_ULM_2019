@@ -295,3 +295,141 @@ ncol(foo_df)
 # Caution:
 length(foo_df) # the number of elements (i.e. columns)
 length(foo2) # 6 elements in foo2
+
+
+# Element 4: Logical Expressions
+# Asking and combining Yes/No questions
+
+# Relational operators - Asking questions
+# == equivalency
+# != non-equivalency
+# >, <, >=, <=
+# !x, the negation of x, where x is a logical vector
+
+foo4
+!foo4
+n > p
+n < p
+
+# The output will ALWAYS be a logical vector!
+
+# Logical operators - Combining questions
+# & AND - ALL TRUE
+# | OR - at least ONE TRUE
+# %in% WITHIN - shortcut for many == with |
+
+# Examles
+# Logical type
+# All healthy samples
+foo_df %>% 
+  filter(healthy)
+
+# All unhealthy samples
+foo_df %>% 
+  filter(!healthy)
+
+# Numeric type (int or dbl)
+# below 10
+foo_df %>% 
+  filter(quantity < 10)
+
+# between 10 and 20 (middle)
+foo_df %>% 
+  filter(quantity > 10 & quantity < 20)
+foo_df %>% 
+  filter(quantity > 10, quantity < 20)
+
+# Meaningless
+foo_df %>% 
+  filter(quantity > 10 | quantity < 20)
+
+# beyond 10 and 20 (tails)
+foo_df %>% 
+  filter(quantity < 10 | quantity > 20)
+
+# Impossible
+foo_df %>% 
+  filter(quantity < 10 & quantity > 20)
+
+# What we really did was:
+foo_df$quantity < 10
+foo_df$quantity > 20
+
+# Character type
+# NO PATTERN MATCHING
+# Only heart samples
+foo_df %>% 
+  filter(tissue == "Heart")
+
+# Heart and liver samples
+# basic:
+foo_df %>% 
+  filter(tissue == "Heart" | tissue == "Liver")
+
+# efficient:
+foo_df %>% 
+  filter(tissue %in% c("Heart", "Liver"))
+foo_df %>% 
+  filter(tissue %in% c("Liver", "Heart"))
+
+# terrible -- NEVER do this!
+foo_df %>% 
+  filter(tissue == c("Heart", "Liver"))
+foo_df %>% 
+  filter(tissue == c("Liver", "Heart"))
+
+# Element 5: Indexing
+# Finding info according to position using []
+
+# Vectors (1D)
+foo1[6] # The 6th element
+foo1[p] # The pth element
+foo1[3:p] # The 3rd to the pth element
+foo1[p:length(foo1)] # the pth to the last element 
+
+# Use a combination of:
+# Integers, objects and functions
+
+# This is nice, but....
+# The exciting part is... LOGICAL VECTORS
+# i.e. a result of a logical expression (see above)
+foo1[foo1 < 50] # All values less than 50
+
+# Data frames (2D)
+# [ rows , cols ]
+foo_df[3,] # 3rd row, ALL columns
+foo_df[,3] # ALL rows, 3rd column - Vector
+foo_df[3] # ALL rows, 3rd column - Dataframe
+
+# The 3rd to the pth row, only quantity column
+foo_df[3:p, 3] # by position
+foo_df[3:p, "quantity"] # by name
+# the same, excluding quantity
+foo_df[3:p, -3] # exclude by position
+
+# This is exactly what filter does!
+# e.g. the tissues with low quantity (below 10)
+foo_df[foo_df$quantity < 10 , "tissue"]
+
+foo_df %>% 
+  filter(foo_df$quantity < 10) %>% 
+  select(tissue)
+
+# arranging data:
+foo_df %>% 
+  arrange(desc(quantity)) %>% 
+  .[1:2,]
+
+foo_df %>% 
+  arrange(desc(quantity)) %>% 
+  head(2)
+
+foo_df %>% 
+  arrange(desc(quantity)) %>% 
+  slice(1:2)
+
+foo_df %>% 
+  top_n(2, quantity)
+
+
+
